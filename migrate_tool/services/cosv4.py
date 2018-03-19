@@ -51,6 +51,11 @@ class CosV4StorageService(storage_service.StorageService):
         else:
             self._filelist = None
 
+        if 'sync_files' in kwargs:
+            self._sync_files_dir = kwargs['sync_files']
+        else:
+            self._sync_files_dir = '/tmp/workspace/sync_files'
+
         self._cos_api = CosClient(appid, accesskeyid, accesskeysecret, region=region)
         self._bucket = bucket
         self._overwrite = kwargs['overwrite'] == 'true' if 'overwrite' in kwargs else False
@@ -70,11 +75,11 @@ class CosV4StorageService(storage_service.StorageService):
                 pass
             req = DownloadFileRequest(self._bucket, task.key, local_path)
             ret = self._cos_api.download_file(req)
-	    if ret['code'] != 0:
-		logger.error("error code: " + str(ret['code']))
-                raise IOError("Download Failed, ret=" + str(ret['code']))
 
             logger.debug(str(ret))
+            if ret['code'] != 0:
+                logger.error("error code: " + str(ret['code']))
+                raise IOError("Download Failed, ret=" + str(ret))
 
             if is_ignore_size:
                 logger.info("Download Successfully, break")
@@ -122,7 +127,7 @@ class CosV4StorageService(storage_service.StorageService):
 
     def list(self, marker):
         if self._filelist is not None and len(self._filelist) > 0:
-            filelist_path = '/tmp/sync_files/' + os.path.basename(self._filelist)
+            filelist_path = self._sync_files_dir + '/' + os.path.basename(self._filelist)
 	    filelist_task = Task(self._filelist, None, None, None)
             self._download(filelist_task, filelist_path, True)
             with open(filelist_path) as f:
@@ -151,7 +156,9 @@ class CosV4StorageService(storage_service.StorageService):
 
         while not _finish:
             request = ListFolderRequest(bucket_name=self._bucket, cos_path=path, context=_context)
+            request.set_delimiter = '/'
             ret = self._cos_api.list_folder(request)
+            logger.debug(str(ret))
 
             if ret['code'] != 0:
                 max_retry -= 1

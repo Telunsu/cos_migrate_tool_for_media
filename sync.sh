@@ -26,29 +26,36 @@ DEST_SK=dddddddddddddddddddddddddddddd
 
 
 function GenerateConf() {
-    if [[ ! -e "${CONF_PATH}" ]]; then
-        touch ${CONF_PATH}
-    	echo "[common]" >> ${CONF_PATH}
-    	echo "workspace=${WORKSPACE}" >> ${CONF_PATH}
-    	echo "threads=${THREADS}" >> ${CONF_PATH}
-    	echo "" >> ${CONF_PATH}
-
-    	echo "[source]" >> ${CONF_PATH}
-    	echo "type=cosv4" >> ${CONF_PATH}
-    	echo "accesskeyid=${SRC_AK}" >> ${CONF_PATH}
-    	echo "accesskeysecret=${SRC_SK}" >> ${CONF_PATH}
-    	echo "bucket=${SRC_BUCKET}" >> ${CONF_PATH}
-    	echo "appid=${SRC_APPID}" >> ${CONF_PATH}
-    	echo "region=${SRC_REGION}" >> ${CONF_PATH}
-    	echo "" >> ${CONF_PATH}
-
-    	echo "[destination]" >> ${CONF_PATH}
-    	echo "type=s3" >> ${CONF_PATH}
-    	echo "accesskeyid=${DEST_AK}" >> ${CONF_PATH}
-    	echo "accesskeysecret=${DEST_SK}" >> ${CONF_PATH}
-    	echo "bucket=${DEST_BUCKET}" >> ${CONF_PATH}
-    	echo "prefix=/" >> ${CONF_PATH}
+    if [[ -e "${CONF_PATH}" ]]; then
+        rm ${CONF_PATH}
     fi
+
+    touch ${CONF_PATH}
+    if [[ $? -ne 0 ]]; then
+        echo "Generate Conf error."
+        exit 1
+    fi
+    echo "[common]" >> ${CONF_PATH}
+    echo "workspace=${WORKSPACE}" >> ${CONF_PATH}
+    echo "threads=${THREADS}" >> ${CONF_PATH}
+    echo "" >> ${CONF_PATH}
+
+    echo "[source]" >> ${CONF_PATH}
+    echo "type=cosv4" >> ${CONF_PATH}
+    echo "accesskeyid=${SRC_AK}" >> ${CONF_PATH}
+    echo "accesskeysecret=${SRC_SK}" >> ${CONF_PATH}
+    echo "bucket=${SRC_BUCKET}" >> ${CONF_PATH}
+    echo "appid=${SRC_APPID}" >> ${CONF_PATH}
+    echo "region=${SRC_REGION}" >> ${CONF_PATH}
+    echo "sync_files=${SYNC_FILE_DIR}" >> ${CONF_PATH}
+    echo "" >> ${CONF_PATH}
+
+    echo "[destination]" >> ${CONF_PATH}
+    echo "type=s3" >> ${CONF_PATH}
+    echo "accesskeyid=${DEST_AK}" >> ${CONF_PATH}
+    echo "accesskeysecret=${DEST_SK}" >> ${CONF_PATH}
+    echo "bucket=${DEST_BUCKET}" >> ${CONF_PATH}
+    echo "prefix=/" >> ${CONF_PATH}
 }
 
 function Init() {
