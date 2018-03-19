@@ -67,11 +67,13 @@ function Init() {
         fi
     fi
     
-    if [[ ! -e ${SYNC_FILE_DIR} ]]; then
-        mkdir -p ${SYNC_FILE_DIR}
-        if [[ 0 -ne $? ]]; then
-        	echo "Create sync file dir failed. sync_file_dir=${SYNC_FILE_DIR}".
-            exit 1
+    if [[ x"$1" != x"all" ]]; then
+        if [[ ! -e ${SYNC_FILE_DIR} ]]; then
+            mkdir -p ${SYNC_FILE_DIR}
+            if [[ 0 -ne $? ]]; then
+        	    echo "Create sync file dir failed. sync_file_dir=${SYNC_FILE_DIR}".
+                exit 1
+            fi
         fi
     fi
     
@@ -86,7 +88,11 @@ function Init() {
 
 Init
 GenerateConf
-cos_migrate_tool -c ${CONF_PATH} --filelist=${FILELIST}
+if [[ x"$1" == x"all" ]]; then
+    cos_migrate_tool -c ${CONF_PATH} 
+else
+    cos_migrate_tool -c ${CONF_PATH} --filelist=${FILELIST}
+fi
 
 # Save failed_files
 cp ${WORKSPACE}/failed_files.txt ${FAILED_HISTORY}/failed_files.${DATE}
@@ -96,9 +102,11 @@ if [[ $? -ne 0 ]]; then
     exit 2
 fi
 
-if [[ ! -e "${SYNC_FILE_DIR}/${DATE}" ]]; then
-    echo "Download sync file error".
-    exit 3
+if [[ x"$1" != x"all" ]]; then
+    if [[ ! -e "${SYNC_FILE_DIR}/${DATE}" ]]; then
+        echo "Download sync file error".
+        exit 3
+    fi
 fi
 
 if [[ -s ${FAILED_HISTORY}/failed_files.${DATE} ]]; then
