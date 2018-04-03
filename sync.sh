@@ -86,7 +86,7 @@ function Init() {
     fi
 }
 
-Init
+Init $1
 GenerateConf
 if [[ x"$1" == x"all" ]]; then
     cos_migrate_tool -c ${CONF_PATH} 
@@ -94,13 +94,13 @@ else
     cos_migrate_tool -c ${CONF_PATH} --filelist=${FILELIST}
 fi
 
-# Save failed_files
-cp ${WORKSPACE}/failed_files.txt ${FAILED_HISTORY}/failed_files.${DATE}
-
 if [[ $? -ne 0 ]]; then
     echo "Sync files error.".
     exit 2
 fi
+
+# Save failed_files
+mv ${WORKSPACE}/failed_files.txt ${FAILED_HISTORY}/failed_files.${DATE}
 
 if [[ x"$1" != x"all" ]]; then
     if [[ ! -e "${SYNC_FILE_DIR}/${DATE}" ]]; then
