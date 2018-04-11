@@ -21,6 +21,7 @@ SRC_SK=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
 DEST_BUCKET=destbucket
 DEST_AK=cccccccccccccccccccccccccccccc
 DEST_SK=dddddddddddddddddddddddddddddd
+DEST_ENDPOINT=127.0.0.1
 
 ######################## BUCKET CONFIG END ##########################
 
@@ -55,6 +56,7 @@ function GenerateConf() {
     echo "accesskeyid=${DEST_AK}" >> ${CONF_PATH}
     echo "accesskeysecret=${DEST_SK}" >> ${CONF_PATH}
     echo "bucket=${DEST_BUCKET}" >> ${CONF_PATH}
+    echo "endpoint=${DEST_ENDPOINT}" >> ${CONF_PATH}
     echo "prefix=/" >> ${CONF_PATH}
 }
 
