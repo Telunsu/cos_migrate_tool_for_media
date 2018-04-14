@@ -18,10 +18,16 @@ SRC_REGION=cd # cd/sh...
 SRC_AK=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 SRC_SK=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
 
+# DEST_TYPE可选值s3/localfs
+DEST_TYPE=s3
+
+# S3配置项
 DEST_BUCKET=destbucket
 DEST_AK=cccccccccccccccccccccccccccccc
 DEST_SK=dddddddddddddddddddddddddddddd
 DEST_ENDPOINT=127.0.0.1
+# LocalFS 配置项
+LOCALFS_WORKSPACE=/tmp/local
 
 ######################## BUCKET CONFIG END ##########################
 
@@ -52,12 +58,16 @@ function GenerateConf() {
     echo "" >> ${CONF_PATH}
 
     echo "[destination]" >> ${CONF_PATH}
-    echo "type=s3" >> ${CONF_PATH}
-    echo "accesskeyid=${DEST_AK}" >> ${CONF_PATH}
-    echo "accesskeysecret=${DEST_SK}" >> ${CONF_PATH}
-    echo "bucket=${DEST_BUCKET}" >> ${CONF_PATH}
-    echo "endpoint=${DEST_ENDPOINT}" >> ${CONF_PATH}
-    echo "prefix=/" >> ${CONF_PATH}
+    echo "type=${DEST_TYPE}" >> ${CONF_PATH}
+    if [[ x"${DEST_TYPE}" == x"s3" ]]; then
+    	echo "accesskeyid=${DEST_AK}" >> ${CONF_PATH}
+    	echo "accesskeysecret=${DEST_SK}" >> ${CONF_PATH}
+    	echo "bucket=${DEST_BUCKET}" >> ${CONF_PATH}
+    	echo "endpoint=${DEST_ENDPOINT}" >> ${CONF_PATH}
+    	echo "prefix=/" >> ${CONF_PATH}
+    else 
+        echo "workspace=${LOCALFS_WORKSPACE}" >> ${CONF_PATH}
+    fi
 }
 
 function Init() {

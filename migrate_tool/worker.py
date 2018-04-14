@@ -81,7 +81,6 @@ class Worker(object):
                     logger.exception("exists failed")
 
                 try:
-                    logger.info("Download Local Path=%s, task.key=%s" % (localpath, task.key))
                     self._output_service.download(task, localpath)
                 except Exception as e:
                     logger.exception("download failed")

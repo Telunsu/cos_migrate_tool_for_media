@@ -5,26 +5,26 @@ import os
 from os import path
 from migrate_tool.task import Task
 from migrate_tool import storage_service
+from logging import getLogger
 
+logger = getLogger(__name__)
 
 class LocalFileSystem(storage_service.StorageService):
 
     def __init__(self, *args, **kwargs):
         self._workspace = kwargs['workspace']
 
-    def exists(self, path_):
-        rt = path.join(self._workspace, path_)
+    def exists(self, task):
+	rt = self._workspace + path.sep + task.key
         return path.exists(rt)
 
     def download(self, task, localpath):
-        path_ = task['key']
-        src_path = path.join(self._workspace, path_)
+        src_path = self._workspace + path.sep + task.key
         import shutil
         return shutil.copyfile(src_path, localpath)
 
     def upload(self, task, localpath):
-        path_ = task['key']
-        src_path = path.join(self._workspace, path_)
+        src_path = self._workspace + path.sep + task.key
         try:
             import os
             os.makedirs(path.dirname(src_path))

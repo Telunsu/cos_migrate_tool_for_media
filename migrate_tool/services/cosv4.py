@@ -90,7 +90,7 @@ class CosV4StorageService(storage_service.StorageService):
                 break
 
             from os import path
-            if path.getsize(local_path) != int(task.size['filelen']):
+            if path.getsize(local_path) != int(task.size):
                 logger.error("Download Failed, size1: {size1}, size2: {size2}".format(size1=path.getsize(local_path),
                                                                                       size2=task.size))
             else:

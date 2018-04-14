@@ -20,8 +20,12 @@ class S3StorageService(storage_service.StorageService):
         endpoint = kwargs['endpoint']
         bucket = kwargs['bucket']
         self._prefix = kwargs['prefix'] if 'prefix' in kwargs else ''
-        _s3_api = boto.connect_s3(aws_access_key_id=accesskeyid, aws_secret_access_key=accesskeysecret, 
-		host=endpoint, is_secure=False, calling_format = boto.s3.connection.OrdinaryCallingFormat())
+        _s3_api = None
+        if len(endpoint) > 0:
+            _s3_api = boto.connect_s3(aws_access_key_id=accesskeyid, aws_secret_access_key=accesskeysecret, 
+                    host=endpoint, is_secure=False, calling_format = boto.s3.connection.OrdinaryCallingFormat())
+        else:
+            _s3_api = S3Connection(aws_access_key_id=accesskeyid, aws_secret_access_key=accesskeysecret)
         self._bucket_api = _s3_api.get_bucket(bucket)
 
     def download(self, task, local_path):
