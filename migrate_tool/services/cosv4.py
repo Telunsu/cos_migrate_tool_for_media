@@ -95,7 +95,7 @@ class CosV4StorageService(storage_service.StorageService):
                 task_size = task.size
             else:
                 task_size = int(task.size['filelen'])
-                
+
             if path.getsize(local_path) != task_size:
                 logger.error("Download Failed, size1: {size1}, size2: {size2}".format(size1=path.getsize(local_path),
                                                                                       size2=task_size))
@@ -238,4 +238,4 @@ class CosV4StorageService(storage_service.StorageService):
             logger.warn("get task by key error, key = {},error code: {}".format(key, str(ret['code'])))
             return Task(key, None, None, None)
 
-        return Task(urllib.quote(key.encode('utf8')), int(ret['data']['filesize']), None, None)
+        return Task(key, int(ret['data']['filesize']), None, None)
