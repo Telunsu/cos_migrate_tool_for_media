@@ -4,9 +4,13 @@ from logging import getLogger
 from migrate_tool import storage_service
 from migrate_tool.task import Task
 from boto.s3.key import Key
+from boto.s3.multipart import MultiPartUpload
 
 from boto.s3.connection import S3Connection
 import boto
+import math
+import os
+from filechunkio import FileChunkIO
 
 
 logger = getLogger(__name__)
@@ -17,7 +21,7 @@ class S3StorageService(storage_service.StorageService):
 
         accesskeyid = kwargs['accesskeyid']
         accesskeysecret = kwargs['accesskeysecret']
-        endpoint = kwargs['endpoint']
+        endpoint = kwargs['endpoint'] if 'endpoint' in kwargs else ''
         bucket = kwargs['bucket']
         self._prefix = kwargs['prefix'] if 'prefix' in kwargs else ''
         _s3_api = None
@@ -63,17 +67,25 @@ class S3StorageService(storage_service.StorageService):
         if s3_path.startswith('/'):                                                                
             s3_path = s3_path[1:]                                                                 
                                                                                                     
-
-	k = Key(self._bucket_api)
-	k.key = s3_path
-        for j in range(5):                                                                          
-            try:                                                                                    
-		k.set_contents_from_filename(local_path)
-                break                                                                               
-            except Exception as e:                                                                  
-                logger.warn('upload failed %s' % str(e))                                            
-        else:                                                                                       
-            raise OSError("uploaderror")
+        file_size = os.stat(local_path).st_size
+        # 大于2G的文件采用分块上传
+        try:
+            if file_size > 2 * 1024 * 1024 * 1024:
+                mp = self._bucket_api.initiate_multipart_upload(s3_path)
+                chunk_size = 52428800
+                chunk_count = int(math.ceil(file_size/ float(chunk_size)))
+                for i in range(chunk_count):
+                    offset = chunk_size * i
+                    bytes = min(chunk_size, file_size - offset)
+                    with FileChunkIO(local_path, 'r', offset=offset, bytes=bytes) as fp:
+                        mp.upload_part_from_file(fp, part_num=i + 1)
+                mp.complete_upload()
+            else:
+                k = Key(self._bucket_api)
+                k.key = s3_path
+                k.set_contents_from_filename(local_path)
+        except Exception as e:
+            logger.warn('upload failed %s' % str(e))
 
     def list(self):
         for obj in self._bucket_api.list(prefix=self._prefix):

@@ -5,4 +5,5 @@ qiniu==7.0.9.1
 boto==2.43.0
 qcloud-cos-v3
 qcloud-cos-v4
+filechunkio
 cos-python-sdk-v5-private
